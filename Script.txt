@@ -1,0 +1,16 @@
+####### Cambia IP, Configura DNS, Cambia nombre y renicia #############
+
+$NIC =  Get-NetIPAddress -InterfaceAlias "Ethernet0" #Nombre de la interfaz en Windows
+Disable-NetAdapterBinding -InterfaceDescription "*" -ComponentID ms_tcpip6 -PassThru #Desahibilita ipv6
+New-NetIPAddress -InterfaceIndex $nic.InterfaceIndex –IPv4Address "10.48.X.X" –PrefixLength 24 -DefaultGateway "10.48.x.1"
+Set-DnsClientServerAddress -InterfaceIndex $nic.InterfaceIndex -ServerAddresses ("156.146.22.146","10.55.20.152")
+Add-LocalGroupMember -Member RAW-NJ-RAW- -Group Administrators
+Rename-Computer –ComputerName "NJ-RAW-" New-Name "nuevo_nombre" –DomainCredential "COACH\mlopez-admin" -Restart
+
+
+########## Si se ocupa agregar a dominio ###################
+$Username = "COACH\mlopez-admin" #Variable usuario
+$Password = "PASSWORD" #Variable Password
+$pass = ConvertTo-SecureString -AsPlainText $Password -Force #Encripción del password
+$MySecureCreds = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username,$Pass #Llenado de la variable con el usuario y password encriptado
+Add-Computer -DomainName COACH -Credential $MySecureCreds -OUPath "PATH" -Restart #Agregar el equipo al dominio en la carpeta (OU) que le corresponde
